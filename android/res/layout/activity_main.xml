@@ -10,17 +10,28 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="78dp"
+        android:layout_marginTop="41dp"
         android:text="Binary Track"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <Button
-        android:id="@+id/button1"
+    <AutoCompleteTextView
+        android:id="@+id/usernames"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/textView1"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="Ready"
-        android:onClick="startButton" />
+        android:layout_marginTop="22dp"
+        android:ems="10"
+        android:text="Username" />
+
+    <Button
+        android:id="@+id/ready"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/usernames"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:onClick="startButton"
+        android:text="Ready" />
 
 </RelativeLayout>
