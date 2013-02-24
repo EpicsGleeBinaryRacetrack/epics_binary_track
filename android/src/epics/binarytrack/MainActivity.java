@@ -25,6 +25,16 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		final AutoCompleteTextView username = (AutoCompleteTextView)this.findViewById(R.id.usernames);
+		username.setOnEditorActionListener(new OnEditorActionListener() {
+			
+			@Override
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+				InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+				imm.hideSoftInputFromWindow(username.getWindowToken(), 0);
+				return true;
+			}
+		});
 	}
 
 	@Override
@@ -42,6 +52,8 @@ public class MainActivity extends Activity {
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, usernames);
 		username.setAdapter(adapter);
 		Toast.makeText(MainActivity.this, "Welcome " + input, Toast.LENGTH_SHORT).show();
+		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(username.getWindowToken(), 0);
 		this.startActivity(new Intent(this,QuestionScreen.class));
 	}
 
