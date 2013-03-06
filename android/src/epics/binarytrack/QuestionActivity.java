@@ -2,37 +2,58 @@ package epics.binarytrack;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.view.View;
-import android.widget.Toast;
+import epics.binarytrack.fragments.MultiChoiceQuestionFragment;
+import epics.binarytrack.fragments.QuestionFragment;
+import epics.binarytrack.fragments.TextQuestionFragment;
+import epics.binarytrack.questions.Question;
+import epics.binarytrack.questions.QuestionManager;
 
-public class QuestionActivity extends FragmentActivity {
- 
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_question);
+public class QuestionActivity extends FragmentActivity implements OnQustionListener {
 
-        if (findViewById(R.id.fragment_container) != null) {
-
-            if (savedInstanceState != null) {
-                return;
-            }
-
-            // Create an instance of ExampleFragment
-            MultiChoiceQuestionFragment firstFragment = new MultiChoiceQuestionFragment();
-
-            // In case this activity was started with special instructions from an Intent,
-            // pass the Intent's extras to the fragment as arguments
-            firstFragment.setArguments(getIntent().getExtras());
-
-            // Add the fragment to the 'fragment_container' FrameLayout
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, firstFragment).commit();
-        }
-    }
-    
-    public void buttonPress(View v){
-    	Toast.makeText(this, "button was pressed", Toast.LENGTH_SHORT).show();
+	MultiChoiceQuestionFragment firstFragment;
+	TextQuestionFragment textFragment;
+	QuestionFragment current = null;
+	Question mQuestion = null;
+	QuestionManager mQmanager;
+	
+    public void onQuestionAnswered() {
+    	nextQuestion();
     }
 
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_question);
+
+		if (findViewById(R.id.fragment_container) != null) {
+
+			if (savedInstanceState != null) {
+				return;
+			}
+			nextQuestion();
+		}
+	}
+	
+	public void nextQuestion(){
+		if(mQmanager==null){
+			mQmanager=new QuestionManager();
+		}
+		mQuestion = mQmanager.getNextQuestion();
+				
+		switch(mQuestion.getType()){
+			case Question.TEXT_INPUT:
+				current = new TextQuestionFragment();
+				break;
+			case Question.MULTI_CHOICE_4:
+			case Question.MULTI_CHOICE_2:
+				current = new MultiChoiceQuestionFragment();
+				break;
+		}
+		current.setArguments(getIntent().getExtras());
+		current.setQuestion(mQuestion);
+
+		getSupportFragmentManager().beginTransaction()
+				.replace(R.id.fragment_container, current).commit();
+		
+	}
 
 }
