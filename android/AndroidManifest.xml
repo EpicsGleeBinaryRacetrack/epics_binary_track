@@ -24,7 +24,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="QuestionScreen" android:screenOrientation="sensorLandscape" android:theme="@android:style/Theme.NoTitleBar"></activity>
+        <activity android:name="epics.binarytrack.QuestionActivity" android:screenOrientation="sensorLandscape" android:theme="@android:style/Theme.NoTitleBar"></activity>
     </application>
 
 </manifest>

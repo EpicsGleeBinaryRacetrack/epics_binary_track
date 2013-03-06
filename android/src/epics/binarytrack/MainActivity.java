@@ -3,7 +3,6 @@ package epics.binarytrack;
 import java.util.ArrayList;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,10 +12,9 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.TextView.OnEditorActionListener;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
 	ArrayList<String> usernames = new ArrayList<String>();
@@ -54,7 +52,7 @@ public class MainActivity extends Activity {
 		Toast.makeText(MainActivity.this, "Welcome " + input, Toast.LENGTH_SHORT).show();
 		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 		imm.hideSoftInputFromWindow(username.getWindowToken(), 0);
-		this.startActivity(new Intent(this,QuestionScreen.class));
+		this.startActivity(new Intent(this,QuestionActivity.class));
 	}
 
 }
