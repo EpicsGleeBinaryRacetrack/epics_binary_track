@@ -3,6 +3,7 @@ from tkinter import *
 from tkinter import ttk 
 #from backend import *
 from tkinter import messagebox
+from tkinter import tix
 import json
 import random
 from sys import stdout
@@ -14,7 +15,7 @@ class glee_config(object):
 	def __init__(self):
 		
 		# set up initial window 
-		root = Tk()
+		root = tix.Tk()
 		root.title("Binary Racetrack Question Editor")
 		root.geometry('1000x650')
 		root.rowconfigure(0, weight=1)
@@ -44,7 +45,12 @@ class glee_config(object):
 		load_cat_button.pack(side=LEFT)
 		del_cat_button = ttk.Button(load_cat_frame, text="Delete Category", command=self.cat_delete)
 		del_cat_button.pack(side=LEFT)
-		cat_box = Listbox(cat_frame, font=self.default_font)
+		
+		cat_scroll = Scrollbar(cat_frame)
+		cat_scroll.pack(side=RIGHT, fill=Y)
+		
+		cat_box = Listbox(cat_frame, font=self.default_font, yscrollcommand=cat_scroll.set)
+		cat_scroll.config(command=cat_box.yview)
 		
 		# Double click event is different than button presses, in that the function it calls has to accept
 		# an event object.  Because this is object-oriented, that would mean the function would have to 
@@ -138,7 +144,11 @@ class glee_config(object):
 		
 		quest_label = ttk.Label(quest_frame, text="Questions", font=self.default_font)
 		quest_label.pack(pady=3,padx=3)
-		quest_box = Listbox(quest_frame, font=self.default_font)
+		quest_scroll = Scrollbar(quest_frame)
+		quest_scroll.pack(fill=Y, side=RIGHT)
+		
+		quest_box = Listbox(quest_frame, font=self.default_font, yscrollcommand=quest_scroll.set)
+		quest_scroll.config(command=quest_box.yview)
 		quest_box.bind("<Double-Button-1>", lambda x:self.quest_select()) 	
 		
 		#pad_frame = ttk.Frame(quest_frame)
@@ -161,11 +171,23 @@ class glee_config(object):
 		default_cat_title = ttk.Label(default_cat_buffer_frame, text="Default Categories", font=self.default_font)
 		default_cat_title.pack(side=TOP)
 		
-		user_cat_frame = ttk.Frame(page_2_frame)
-		user_cat_frame.pack(fill=BOTH, expand=1)
-		
-		user_cat_title = ttk.Label(user_cat_frame, text="Custom Categories", font=self.default_font)
+		#user_cat_frame = ttk.Frame(page_2_frame)
+		user_cat_master_frame = ttk.Frame(page_2_frame)
+		user_cat_master_frame.pack(fill=BOTH, expand=1)
+		user_cat_title = ttk.Label(user_cat_master_frame, text="Custom Categories", font=self.default_font)
 		user_cat_title.pack(side=TOP)
+		
+		user_cat_scroll_window = tix.ScrolledWindow(user_cat_master_frame, scrollbar="x")
+		user_cat_scroll_window.pack(fill=BOTH, expand=1)
+		
+		#user_cat_frame = ttk.Frame(user_cat_scroll_window)
+		#user_cat_frame.pack(fill=BOTH)#, expand=1)
+		user_cat_frame = user_cat_scroll_window.window
+		
+		#user_cat_scroll = Scrollbar(user_cat_frame, orient=HORIZONTAL)
+		#user_cat_scroll.pack(side=BOTTOM, fill=X)
+		
+		#user_cat_frame.config(yscrollcommand=user_cat_scroll.set)
 		
 		builtin_cat_checkboxes = {}
 		
@@ -241,7 +263,7 @@ class glee_config(object):
 			b.pack(side=LEFT)
 		
 	def init_user_checkboxes(self):
-		#for i in range(200):
+		#for i in range(400):
 			#x = "%6d"%i
 			#self.questions["category " + x] = {}
 			#self.questions["category " + x]["question " + str(i)] = [str(i), str(i), str(i), str(i)]
