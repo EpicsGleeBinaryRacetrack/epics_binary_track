@@ -8,17 +8,18 @@ import epics.binarytrack.fragments.TextQuestionFragment;
 import epics.binarytrack.questions.Question;
 import epics.binarytrack.questions.QuestionManager;
 
-public class QuestionActivity extends FragmentActivity implements OnQustionListener {
+public class QuestionActivity extends FragmentActivity implements
+		OnQustionListener {
 
 	MultiChoiceQuestionFragment firstFragment;
 	TextQuestionFragment textFragment;
 	QuestionFragment current = null;
 	Question mQuestion = null;
 	QuestionManager mQmanager;
-	
-    public void onQuestionAnswered() {
-    	nextQuestion();
-    }
+
+	public void onQuestionAnswered() {
+		nextQuestion();
+	}
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -32,28 +33,32 @@ public class QuestionActivity extends FragmentActivity implements OnQustionListe
 			nextQuestion();
 		}
 	}
-	
-	public void nextQuestion(){
-		if(mQmanager==null){
-			mQmanager=new QuestionManager();
+
+	public void nextQuestion() {
+		if (mQmanager == null) {
+			mQmanager = new QuestionManager();
 		}
 		mQuestion = mQmanager.getNextQuestion();
-				
-		switch(mQuestion.getType()){
-			case Question.TEXT_INPUT:
-				current = new TextQuestionFragment();
-				break;
-			case Question.MULTI_CHOICE_4:
-			case Question.MULTI_CHOICE_2:
-				current = new MultiChoiceQuestionFragment();
-				break;
+
+		switch (mQuestion.getType()) {
+		case Question.TEXT_INPUT:
+			current = new TextQuestionFragment();
+			break;
+		case Question.MULTI_CHOICE_4:
+		case Question.MULTI_CHOICE_2:
+			current = new MultiChoiceQuestionFragment();
+			break;
 		}
 		current.setArguments(getIntent().getExtras());
 		current.setQuestion(mQuestion);
 
 		getSupportFragmentManager().beginTransaction()
 				.replace(R.id.fragment_container, current).commit();
-		
+
+	}
+
+	@Override
+	public void onBackPressed() {
 	}
 
 }
