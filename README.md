@@ -11,7 +11,6 @@ Instructions:
 3. start applications
 4. run server/Main.java
 5. start answering questions
-6. 
 
 When an question is answered correctly one of rahul_code_4_* file is run depending on which phone is being used.
 
