@@ -1,5 +1,5 @@
 package epics.binarytrack;
 
 public interface OnQustionListener {
-    public void onQuestionAnswered();
+    public void onQuestionAnswered(boolean isCorrect);
 }

@@ -2,6 +2,7 @@ package epics.binarytrack;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import epics.binarytrack.fragments.MultiChoiceQuestionFragment;
 import epics.binarytrack.fragments.QuestionFragment;
 import epics.binarytrack.fragments.TextQuestionFragment;
@@ -17,7 +18,12 @@ public class QuestionActivity extends FragmentActivity implements
 	Question mQuestion = null;
 	QuestionManager mQmanager;
 
-	public void onQuestionAnswered() {
+	public void onQuestionAnswered(boolean isCorrect) {
+		if(isCorrect){
+			ServerApplication.out.write("player\n");
+			ServerApplication.out.flush();
+			Log.d("epics","sent output"); 
+		}
 		nextQuestion();
 	}
 
@@ -26,7 +32,6 @@ public class QuestionActivity extends FragmentActivity implements
 		setContentView(R.layout.activity_question);
 
 		if (findViewById(R.id.fragment_container) != null) {
-
 			if (savedInstanceState != null) {
 				return;
 			}
@@ -49,7 +54,14 @@ public class QuestionActivity extends FragmentActivity implements
 			current = new MultiChoiceQuestionFragment();
 			break;
 		}
-		current.setArguments(getIntent().getExtras());
+		Bundle b = getIntent().getExtras();
+		if(b==null){
+			b=new Bundle();
+		}
+		if(mQuestion!=null & b!=null){
+			b.putSerializable("question", mQuestion);
+		}
+		current.setArguments(b);
 		current.setQuestion(mQuestion);
 
 		getSupportFragmentManager().beginTransaction()
@@ -57,8 +69,9 @@ public class QuestionActivity extends FragmentActivity implements
 
 	}
 
-	@Override
-	public void onBackPressed() {
-	}
+	//
+	// @Override
+	// public void onBackPressed() {
+	// }
 
 }

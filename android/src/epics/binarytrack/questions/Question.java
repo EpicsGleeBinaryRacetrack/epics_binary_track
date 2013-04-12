@@ -1,6 +1,8 @@
 package epics.binarytrack.questions;
 
-public class Question {
+import java.io.Serializable;
+
+public class Question implements Serializable{
 	public final static String QUESTION = "question"; // used for passing
 														// question to fragment
 	public final static String QUESTION_TYPE = "question_type";
