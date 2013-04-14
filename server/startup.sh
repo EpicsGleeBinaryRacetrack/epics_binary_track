@@ -8,4 +8,6 @@
 ./adb -s c0890b1707e4c65f shell am force-stop epics.binarytrack
 ./adb -s c0890b1707e4c65f shell am start -n epics.binarytrack/epics.binarytrack.MainActivity
 
+while true; do
 java Main
+done

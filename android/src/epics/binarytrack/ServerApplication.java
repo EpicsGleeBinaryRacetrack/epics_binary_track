@@ -19,7 +19,7 @@ public class ServerApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 
-		new Thread(new Runnable() {
+		Runnable r = new Runnable() {
 
 			@Override
 			public void run() {
@@ -31,7 +31,7 @@ public class ServerApplication extends Application {
 					out = new PrintWriter(clientSocket.getOutputStream(), true);
 				} catch (IOException e) {
 					System.err.println("Could not listen on port: 10007.");
-					System.exit(1);
+					System.exit(0);
 				}
 				Log.d("epics","Connection successful");
 				Log.d("epics","Waiting for input.....");
@@ -67,7 +67,8 @@ public class ServerApplication extends Application {
 
 			}
 
-		}).start();
+		};
+		new Thread(r).start();
 	}
 
 }

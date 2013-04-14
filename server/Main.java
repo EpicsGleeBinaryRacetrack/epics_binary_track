@@ -58,9 +58,13 @@ class PlayerResponse extends Thread {
 			out = new PrintWriter(echoSocket.getOutputStream(), true);
 			in = new BufferedReader(new InputStreamReader(
 					echoSocket.getInputStream()));
-            String line = null;
-			while ((line=in.readLine())!=null) {
-				Main.runScript(player);
+			String line = null;
+			try {
+				while ((line = in.readLine()) != null) {
+					Main.runScript(player);
+				}
+			} catch (IOException e) {
+				System.exit(0);
 			}
 
 			out.close();
@@ -70,8 +74,8 @@ class PlayerResponse extends Thread {
 			System.err.println("Don't know about host: " + serverHostname);
 			System.exit(1);
 		} catch (IOException e) {
-			System.err.println("Couldn't get I/O for "
-					+ "the connection to: " + serverHostname);
+			System.err.println("Couldn't get I/O for " + "the connection to: "
+					+ serverHostname);
 			System.exit(1);
 		}
 	}
