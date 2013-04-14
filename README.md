@@ -20,6 +20,7 @@ Things to do!
 3. Write code on the android app to process and show questions in the question file.
 4. 
 
+how to push files to devices
 ./adb -s c089052a0120707f push /path/to/local/file /mnt/sdcard/path/to/file
 ./adb -s c0890b1707e4c65f push /path/to/local/file /mnt/sdcard/path/to/file
 
