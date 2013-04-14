@@ -18,3 +18,10 @@ Things to do!
 1. Put following above instructions in a script to be run when the raspberry pi is started.
 2. Grab questions from usb and push to phone.
 3. Write code on the android app to process and show questions in the question file.
+4. 
+
+./adb -s c089052a0120707f push /path/to/local/file /mnt/sdcard/path/to/file
+./adb -s c0890b1707e4c65f push /path/to/local/file /mnt/sdcard/path/to/file
+
+
+
