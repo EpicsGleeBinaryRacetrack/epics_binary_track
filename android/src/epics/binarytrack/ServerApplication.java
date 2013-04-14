@@ -24,17 +24,30 @@ public class ServerApplication extends Application {
 			@Override
 			public void run() {
 				ServerSocket serverSocket = null;
+				while (true){
 				try {
 					serverSocket = new ServerSocket(8081);
-					Log.d("epics","Waiting for connection.....");
 					clientSocket = serverSocket.accept();
-					out = new PrintWriter(clientSocket.getOutputStream(), true);
+					Log.d("epics","Waiting for connection.....");
+					new Thread(new Runnable(){
+
+						@Override
+						public void run() {
+							try {
+								out = new PrintWriter(clientSocket.getOutputStream(), true);
+							} catch (IOException e) {
+								Log.d("Connecting", "client did not connect");
+							}
+						}
+						
+					}).start();
 				} catch (IOException e) {
 					System.err.println("Could not listen on port: 10007.");
 					System.exit(0);
 				}
 				Log.d("epics","Connection successful");
 				Log.d("epics","Waiting for input.....");
+				}
 
 //				PrintWriter out;
 //				try {
