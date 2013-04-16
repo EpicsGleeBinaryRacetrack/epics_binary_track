@@ -69,8 +69,6 @@ public class JsonParsing {
       if(default_cat.getString("binary to decimal").equals("1") || default_cat.getString("binary to decimal").equals("true")) {
         bin_to_dec = true;
       }
-          
-      System.out.println("done");
     }
     
     
