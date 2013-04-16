@@ -15,8 +15,10 @@ public class MultiChoiceQuestionFragment extends QuestionFragment {
     	View layout = inflater.inflate(R.layout.choice_4_question, container, false);
     	OnClickListener listener = new OnClickListener(){
 			@Override
-			public void onClick(View arg0) {
-				mCallback.onQuestionAnswered();
+			public void onClick(View v) {
+				CharSequence f = ((Button)v).getText();
+				String input = String.valueOf(f);
+				mCallback.onQuestionAnswered(mQuestion.processResponse(input));
 			}    		
     	};
     	Button b = (Button) layout.findViewById(R.id.button1);
