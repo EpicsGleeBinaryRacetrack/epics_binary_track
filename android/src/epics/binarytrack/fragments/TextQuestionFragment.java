@@ -38,11 +38,6 @@ public class TextQuestionFragment extends QuestionFragment {
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				String input = mEditText.getEditableText().toString();
 				boolean isCorrect = mQuestion.processResponse(input.trim());
-				if(isCorrect){
-					Toast.makeText(TextQuestionFragment.this.getActivity(), "You are right!", Toast.LENGTH_SHORT).show();
-				}else{
-					Toast.makeText(TextQuestionFragment.this.getActivity(), "You are wrong!", Toast.LENGTH_SHORT).show();
-				}
 				mEditText.setText("");
 				InputMethodManager imm = (InputMethodManager)TextQuestionFragment.this.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 				imm.hideSoftInputFromWindow(mEditText.getWindowToken(), 0);

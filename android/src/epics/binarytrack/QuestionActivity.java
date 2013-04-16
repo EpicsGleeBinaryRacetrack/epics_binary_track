@@ -3,6 +3,7 @@ package epics.binarytrack;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.widget.Toast;
 import epics.binarytrack.fragments.MultiChoiceQuestionFragment;
 import epics.binarytrack.fragments.QuestionFragment;
 import epics.binarytrack.fragments.TextQuestionFragment;
@@ -19,10 +20,15 @@ public class QuestionActivity extends FragmentActivity implements
 	QuestionManager mQmanager;
 
 	public void onQuestionAnswered(boolean isCorrect) {
-		if(isCorrect){
+		if(isCorrect && ServerApplication.out!=null){
 			ServerApplication.out.write("player\n");
 			ServerApplication.out.flush();
 			Log.d("epics","sent output"); 
+		}
+		if(isCorrect){
+			Toast.makeText(this, "You are right!", Toast.LENGTH_SHORT).show();
+		}else{
+			Toast.makeText(this, "You are wrong!", Toast.LENGTH_SHORT).show();
 		}
 		nextQuestion();
 	}
@@ -44,7 +50,7 @@ public class QuestionActivity extends FragmentActivity implements
 			mQmanager = new QuestionManager();
 		}
 		mQuestion = mQmanager.getNextQuestion();
-
+		Log.d("get type", mQuestion.getType()+"");
 		switch (mQuestion.getType()) {
 		case Question.TEXT_INPUT:
 			current = new TextQuestionFragment();

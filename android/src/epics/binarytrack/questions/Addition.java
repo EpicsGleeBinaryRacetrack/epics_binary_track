@@ -10,9 +10,9 @@ public class Addition extends Question
 		type = TEXT_INPUT;
 		int num1 = new Random().nextInt(100);
 		int num2 = new Random().nextInt(100);
-		setQuestion("Add: " + Integer.toBinaryString(num1) + " + "+ Integer.toString(num2) + ".");
+		setQuestion("Add: " +num1 + " + "+ Integer.toString(num2) + ".");
 		int answer = num1 + num2;
-		setAnswer(Integer.toBinaryString(answer));		
+		setAnswer(answer+"");		
 	}
 	
 } 
