@@ -4,9 +4,6 @@ import sys
 
 base = None
 
-print("foobar")
-print(sys.platform)
-
 if sys.platform == "win32":
 	base = "WIN32GUI"
 
