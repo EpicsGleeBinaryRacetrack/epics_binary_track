@@ -122,59 +122,131 @@ class glee_config(object):
 		# conflict, it has priority.  
 		# An alternate option would be to use a grid (instead of 
 		# pack), which allows us to specify exactly where on a 
-		# grid we want widgets.  Pack was my first
+		# grid we want widgets.  Both allow us to put things exactly
+		# where we want them, and they both seem to be fairly
+		# common, but I prefer pack, mostly because it was the first
+		# I used with Tkinter.
 		book.pack(fill=BOTH,expand=1)
 		
+		# Make two frames and put them into the Notebook.  One frame
+		# is for editing the questions and categories.  The other is 
+		# to enable or disable the various categories (user defined
+		# and built in).
 		page_1_frame = ttk.Frame(book)
 		page_1_frame.pack(fill=BOTH,expand=1)
 		
 		page_2_frame = ttk.Frame(book)
 		page_2_frame.pack(fill=BOTH,expand=1)
 		
+		# Put the frames into the book.  This is an additional step
+		# that is similar to packing but also required.  The text 
+		#argument determines what displays in the tab for the frame.
 		book.add(page_1_frame, text="Edit Questions")
 		book.add(page_2_frame, text="Choose Categories")
 		
 		# set up category frame
+		# This is a pretty standard frame setup.  Make a frame, give
+		# it to its parent frame, and pack it.  In this case we want
+		# it to be on the left side and fill its parent frame 
+		# vertically.  Make sure it is a ttk.Frame rather than a 
+		# Frame because ttk is themed.
 		cat_frame = ttk.Frame(page_1_frame)
 		cat_frame.pack(side=LEFT,fill=Y)
+		# Create a label.  Labels are widgets used primarily to display
+		# text.  They can also be used to display images, but in this 
+		# case we are just displaying text with them.  Make the text
+		# be "Categories" and give it the default font, as described
+		# at the start of this class.  Pack it and give it some padding
+		# to make it display more nicely.  Without some padding, some
+		# widgets will encroach on each other, altering the seamless
+		# appearance of the various frames.
 		cat_label = ttk.Label(cat_frame, text="Categories", font=self.default_font)
 		cat_label.pack(pady=3,padx=3)
+		# load_cat_frame is used as a wrapper for the category buttons.
+		# Pack the buttons onto the frame with side=LEFT.  Once we 
+		# have this frame with things on it, we can pack it into the top 
+		# of cat_frame, which puts it just under the Categories label.
+		# This has the added benefit of centering the buttons under the
+		# label.  Alternately, we could wrap this frame in yet another 
+		# frame, pack the wrapper frame at the top, and pack this frame
+		# to the left to get the buttons to be left-aligned.  We want
+		# center for aesthetics in this case, though.
 		load_cat_frame = ttk.Frame(cat_frame)
-		load_cat_frame.pack(side=TOP) # Initially this was set to fill=X but removing that allows the buttons to be centered
+		load_cat_frame.pack(side=TOP)
+		# Make two buttons.  Buttons, like most other widgets, should be
+		# the ttk variants for the modern theme.  Pass it the frame, 
+		# set the text variable, and give it a command.  Commands are 
+		# functions that are called when the button is clicked.  We are
+		# unable to pass any variables to the functions (aside from self
+		# by referring to the function as self.cat_select, for example)
+		# so they are generally built specifically for this purpose.
+		# Another term for this type of function is a "call back".  
 		load_cat_button = ttk.Button(load_cat_frame, text="Select Category", command=self.cat_select)
 		load_cat_button.pack(side=LEFT)
 		del_cat_button = ttk.Button(load_cat_frame, text="Delete Category", command=self.cat_delete)
 		del_cat_button.pack(side=LEFT)
 		
+		# Scrollbars are a bit different from other widgets.  Most 
+		# widgets just require packing, and buttons (as we will see
+		# later) require a command or event to be set.  We want this
+		# scrollbar to be associated with a listbox, which we will make
+		# next.  Make the scrollbar like any other widget (pass it the 
+		# frame we want to put it in) and pack it.  We want it to be
+		# vertical, so set fill to Y.  We also want it to act like a 
+		# standard scrollbar, so pack it to the right instead of the
+		# left that we have been using.
 		cat_scroll = Scrollbar(cat_frame)
 		cat_scroll.pack(side=RIGHT, fill=Y)
 		
+		# A listbox displays a selectable list of items.  We only want
+		# one item to be selectable at a time, which is nice because
+		# that is the default mode.  There are two other modes that
+		# change how many items are selectable at a time.  Like the
+		# buttons, listboxes can have a command.  However, it is a 
+		# special command called yscrollcommand.  Set yscrollcommand to
+		# cat_scroll.set, and then set the cat_scroll's command to 
+		# cat_box.yview.  This lets the scrollbar control the listbox,
+		# and it lets the listbox control the scrollbar.  
 		cat_box = Listbox(cat_frame, font=self.default_font, yscrollcommand=cat_scroll.set)
 		cat_scroll.config(command=cat_box.yview)
 		
-		# Double click event is different than button presses, in that the function it calls has to accept
-		# an event object.  Because this is object-oriented, that would mean the function would have to 
-		# accept self and the event object, and cat_select() only accepts self.  We could use a new function
-		# that does nothing but call cat_select(), but instead of that we just create a lambda function.
-		# A lambda function is a temporary function that exists only during the time it is called.
-		# After that, it is gone.  Lambda functions are often used in locations like this, where a very 
-		# short function is wanted for one specific purpose.
+		# Double click event is different than button presses, in that 
+		# the function it calls has to accept an event object.  Because 
+		# this is object-oriented, that would mean the function would 
+		# have to accept self and the event object, and cat_select() 
+		# only accepts self.  We could use a new function that does 
+		# nothing but call cat_select(), but instead of that we just 
+		# create a lambda function.  A lambda function is a temporary 
+		# function that exists only during the time it is called.  
+		# After that, it is gone.  Lambda functions are often used in 
+		# locations like this, where a very short function is wanted 
+		# for one specific purpose.  This double click event essentially
+		# allows us to just double click on an item instead of using
+		# the "select category" button to select it.  For convenience,
+		# we leave the button in as well.  Unfortunately, there does
+		# not seem to be a single click event, which would make using
+		# this app a bit easier.
 		cat_box.bind("<Double-Button-1>", lambda x:self.cat_select()) 
 		cat_box.pack(side=TOP, fill=Y,expand=1)
 		
 		# set up input boxes
-		# use a frame for each text/box pair to make layout easier
-		# start with a large frame for everything not in cat_frame or but_frame
+		# Most of the remaining code in the __init__ function is similar
+		# to the code we have already seen, so it requires significantly
+		# less documentation.  
 		
 		main_frame = ttk.Frame(page_1_frame)
 		main_frame.pack(fill=BOTH,expand=1)
 		
+		# An Entry is a 1-line input box that defaults to 20 characters
+		# long.  Fortunately, we want exactly 20 characters for these.
+		# A Text is similar to an Entry, except it is potentially 
+		# 2-dimensional, and so requires a different sort of indexing.
+		# Otherwise, they are about the same in functionality.  
 		title_frame = ttk.Frame(main_frame)
 		title_frame.pack(fill=X)
 		title_label = ttk.Label(title_frame, text="Question", font=self.default_font)
 		title_label.pack(side=LEFT,pady=3,padx=3)
 		title_entry = Text(title_frame, font=self.default_font, height=5, wrap='word')
-		#title_entry = Entry(title_frame, font=self.default_font,width=40)
 		title_entry.pack(side=RIGHT)
 		
 		change_cat_frame = ttk.Frame(main_frame)
@@ -191,8 +263,8 @@ class glee_config(object):
 		cor_ans_entry = ttk.Entry(cor_ans_frame, font=self.default_font)
 		cor_ans_entry.pack(side=RIGHT)
 		
-		# for the alternate answers we need another container frame
-		# and then two smaller frames
+		# For the alternate answers we need another container frame
+		# and then two smaller frames.
 		alt_ans_frame = ttk.Frame(main_frame)
 		alt_ans_frame.pack(fill=X)
 		
@@ -200,8 +272,8 @@ class glee_config(object):
 		alt_ans_left_frame.pack(side=LEFT, fill=Y)
 		alt_ans_label = ttk.Label(alt_ans_left_frame, text="Alternate Answers", font=self.default_font)
 		alt_ans_label.pack(side=TOP,pady=3,padx=3)
-		# change alt_ans_warning_label to say "Must have either 2 or 4 answers" 
-		# if there are 1 or 3 answers including the alternates
+		# Change alt_ans_warning_label to say "Must have either 2 or 4 answers" 
+		# if there are 1 or 3 answers including the alternates.
 		alt_ans_warning_string = StringVar()
 		alt_ans_warning_label = ttk.Label(alt_ans_left_frame, textvariable=alt_ans_warning_string, font=self.default_font)
 		alt_ans_warning_label.config(foreground="red")
@@ -220,6 +292,16 @@ class glee_config(object):
 		but_frame = ttk.Frame(main_frame)
 		but_frame.pack(fill=X)
 			
+		# There is plenty of code here for a few extra buttons that we
+		# removed.  Initially, there was a "save all" button.  Nothing
+		# was saved to the file until the save all button was clicked.
+		# However, it was requested that we remove that, so it is no 
+		# longer there.  Its callback function is called everywhere 
+		# data changes so data is always saved.  There were also undo
+		# buttons, but since data is saved automatically, undo seemed 
+		# a bit confusing, so those buttons were removed.  We still have
+		# the select question, save question, new question, and delete
+		# question buttons.
 		load_quest_button = ttk.Button(but_frame, text="Select Question", command=self.quest_select)
 		load_quest_button.pack(side=LEFT)
 		save_button = ttk.Button(but_frame, text="Save Question", command=self.save_question)
@@ -250,8 +332,6 @@ class glee_config(object):
 		quest_scroll.config(command=quest_box.yview)
 		quest_box.bind("<Double-Button-1>", lambda x:self.quest_select()) 	
 		
-		#pad_frame = ttk.Frame(quest_frame)
-		#pad_frame.pack(side=RIGHT, fill=Y)
 		quest_box.pack(fill=BOTH, expand=1)
 		
 		# work on choose categories tab
@@ -270,7 +350,6 @@ class glee_config(object):
 		default_cat_title = ttk.Label(default_cat_buffer_frame, text="Default Categories", font=self.default_font)
 		default_cat_title.pack(side=TOP)
 		
-		#user_cat_frame = ttk.Frame(page_2_frame)
 		user_cat_master_frame = ttk.Frame(page_2_frame)
 		user_cat_master_frame.pack(fill=BOTH, expand=1)
 		user_cat_title = ttk.Label(user_cat_master_frame, text="Custom Categories", font=self.default_font)
@@ -279,21 +358,17 @@ class glee_config(object):
 		user_cat_scroll_window = tix.ScrolledWindow(user_cat_master_frame, scrollbar="x")
 		user_cat_scroll_window.pack(fill=BOTH, expand=1)
 		
-		#user_cat_frame = ttk.Frame(user_cat_scroll_window)
-		#user_cat_frame.pack(fill=BOTH)#, expand=1)
 		user_cat_frame = user_cat_scroll_window.window
-		
-		#user_cat_scroll = Scrollbar(user_cat_frame, orient=HORIZONTAL)
-		#user_cat_scroll.pack(side=BOTTOM, fill=X)
-		
-		#user_cat_frame.config(yscrollcommand=user_cat_scroll.set)
 		
 		builtin_cat_checkboxes = {}
 		
 		#choose_cat_frame = ttk.Frame(page_2_frame)
 		#choose_cat_frame.pack(side=TOP)#, fill=X)
 
-		# give all the frames borders for debugging purposes
+		# Give all the frames borders for debugging purposes.
+		# Uncomment these lines to see where the various 
+		# frames are.  Do not leave it uncommented, because
+		# the app looks quite ugly with frames.
 		#default_cat_frame.config(relief=SUNKEN)
 		#choose_cat_title_frame.config(relief=SUNKEN)
 		#user_cat_frame.config(relief=SUNKEN)
@@ -307,8 +382,12 @@ class glee_config(object):
 		#alt_ans_right_frame.config(relief=SUNKEN)
 		#but_frame.config(relief=SUNKEN)
 		
-		# set the things from which we will later need data to be 
-		# class member variables
+		# When the __init__ function ends, most of the variables
+		# expire because they are local to the function.  Of 
+		# course, they still exist because root eventually owns
+		# them (or their parents, which in turn own them), but
+		# we need a way to reference them.  Assign them to 
+		# class variable versions for later access.
 		self.root = root
 		self.cat_box = cat_box
 		self.save_button = save_button
@@ -328,6 +407,9 @@ class glee_config(object):
 		self.user_cat_frame = user_cat_frame
 		self.page_2_frame = page_2_frame
 		
+		# We need a few more variables that do not come from 
+		# widgets.  Create some class variables and assign them
+		# default values.  
 		self.cat_selected = ""
 		self.quest_selected = ""
 		self.font_color="blue"
@@ -335,6 +417,11 @@ class glee_config(object):
 		self.user_categories = {}
 		self.user_cat_frames = []
 		
+		# Set up some styles used in the choose categories frame.
+		# These can have any name, as long as the name ends in 
+		# ".TCheckbutton" so the styles inherit the values from
+		# the default TCheckbutton style.  All we want here is 
+		# the background colors to be different.  
 		sty = ttk.Style()
 		self.sty_1 = "Emergency1.TCheckbutton"
 		self.sty_2 = "Emergency0.TCheckbutton"
@@ -342,20 +429,21 @@ class glee_config(object):
 		sty.configure("Emergency0.TCheckbutton", background="#F0F0F0")
 		
 		self.fill_defaults()
-				
+		
+		# Load the questions.txt file.		
 		self.fname = "questions.txt"
 		self.load_from_file(self.fname)
-		
-		#self.print_questions()
-		
-		#fout = open("C:\\Users\\Tim\\SkyDrive\\Documents\\Programming\\GLEE Config\\sample2.txt", "w")
-		#print_questions(questions, f=fout)
-		#fout.close()
-		#self.questions = questions
+
+		# Initialize all the widgets.  These functions 
+		# automatically use the values loaded from the 
+		# questions.txt file.
 		self.init_categories()
 		self.init_default_checkboxes()
 		self.init_user_checkboxes()
 		
+		# The mainloop is like a more standard app's main
+		# function, and keeps the program running until 
+		# the user exits it or it somehow crashes.
 		root.mainloop()
 		
 	def init_default_checkboxes(self):
