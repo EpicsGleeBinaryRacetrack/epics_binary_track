@@ -33,7 +33,6 @@ public class ServerApplication extends Application {
 						clientSocket = serverSocket.accept();
 						Log.d("epics", "Waiting for connection.....");
 						new Thread(new Runnable() {
-
 							@Override
 							public void run() {
 								try {
@@ -45,7 +44,6 @@ public class ServerApplication extends Application {
 											"client did not connect");
 								}
 							}
-
 						}).start();
 					}
 				} catch (IOException e) {
