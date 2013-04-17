@@ -1,0 +1,9 @@
+out/host/linux-armv6l/obj/STATIC_LIBRARIES/libcutils_intermediates/list.o: \
+ system/core/libcutils/list.c \
+ system/core/include/arch/linux-x86/AndroidConfig.h \
+ system/core/include/cutils/list.h \
+ /usr/lib/gcc/arm-linux-gnueabihf/4.6/include/stddef.h
+ system/core/libcutils/list.c :
+ system/core/include/arch/linux-x86/AndroidConfig.h :
+ system/core/include/cutils/list.h :
+ /usr/lib/gcc/arm-linux-gnueabihf/4.6/include/stddef.h :
