@@ -1,5 +1,23 @@
 
-# First, a few notes.  The overall project is coded in Python 3.3.0.
+# There are a few things I would like to add to this, but I am lacking
+# the time to do so.  The biggest and best change would be to make the
+# category entry box in the question editor be a Combobox from ttk.  
+# This would make adding questions to existing categories significantly
+# easier.  Making the question name editor be a Combobox as well would
+# be nice for editing existing questions, but not as much so, I think.
+# It would also be significantly more difficult to implement well.
+# Buttons to check/uncheck all categories on the Choose Categories 
+# tab would be nice, but the current implementation of the save 
+# function would make that somewhat obnoxious to use, because every
+# time a box is checked or unchecked, the whole configuration file is
+# saved, which takes some time.  It would be particularly frustrating 
+# for the users to use that button with a large number of categories.
+# I suspect it will be more frustrating to check or uncheck a large
+# number of categories manually as well, so that is certainly a 
+# trade-off.  Unfortunately, I do not have time to implement that,
+# debug it, and make sure it performs well.
+
+# Next, a few notes.  The overall project is coded in Python 3.3.0.
 # The modules we use are tkinter, json, and sys.  From tkinter 
 # we use two sub modules called ttk and tix.  We only need stdout
 # from sys for debug message printing purposes.  
@@ -89,12 +107,19 @@ class glee_config(object):
 		# order to use the ScrolledWindow that we use later, we have
 		# to use the special Tk in tix, so we need tix.Tk().  
 		root = tix.Tk()
-		root.title("Binary Racetrack Question Editor")
+		root.title("Learning Racetrack Question Editor")
 		# Geometry is important.  The first 1000x650 makes it 1000 
 		# pixels wide and 650 tall.  +40 moves it 40 pixels from
 		# the left side of the monitor, and +20 moves it 20 pixels
 		# down from the top of the monitor.
 		root.geometry('1000x650+40+20')
+		# Because the geometry of the window is so important, we also 
+		# want to assure that the geometry remains that way.  This 
+		# window also does not look good if its width or height change,
+		# so we need to make it not resizable.  Tkinter apps default
+		# to being resizable in both width and height, so set those
+		# both to false with the resizable function.
+		root.resizable(width=FALSE, height=FALSE)
 		root.rowconfigure(0, weight=1)
 		root.columnconfigure(0,weight=1)
 		
@@ -446,6 +471,11 @@ class glee_config(object):
 		# the user exits it or it somehow crashes.
 		root.mainloop()
 		
+	# init_default_checkboxes is used to fill (or refill) the 
+	# checkboxes for the default categories according to 
+	# the configuration file.  This is called in the initial
+	# setup, but we do not need to call it anywhere else
+	# because the default categories will never change.
 	def init_default_checkboxes(self):
 		for cat in sorted(self.builtin_categories):
 			tmp_frame = ttk.Frame(self.default_cat_buffer_frame)
@@ -455,7 +485,16 @@ class glee_config(object):
 			self.builtin_cat_checkboxes[cat] = b
 			b.pack(side=LEFT)
 		
+	# init_user_checkboxes is called during the initial
+	# setup and when a category is added or deleted.  Much
+	# like init_default_checkboxes, it fills the checkboxes
+	# for all user-defined categories.  
 	def init_user_checkboxes(self):
+		## Some test code to automatically generate 400 
+		## categories named "category 1", "category 2", 
+		## etc.  This is only for testing purposes, but
+		## is quite useful for testing large numbers of
+		## categories.  
 		#for i in range(400):
 			#x = "%6d"%i
 			#self.questions["category " + x] = {}
@@ -466,27 +505,71 @@ class glee_config(object):
 		#user_cat_title.pack(side=TOP)
 		print("init user checkboxes")
 		
+		# Clear all sub-frames.  The first time this function
+		# is called, this does nothing.  Every other time, it 
+		# removes all existing checkboxes so we can put them
+		# back.  This might seem counter-intuitive, but we 
+		# want all old versions out of our way so we can
+		# put them all in in the right order.
 		for frame in self.user_cat_frames:
 			frame.destroy()
 		
+		# Destroying a frame does not remove the reference to
+		# it, so self.user_cat_frames potentially contains a
+		# bunch of dead references to frames.  Remove these
+		# references by setting the list to a blank list.
+		# The garbage collector will take care of the rest
+		# for us.
 		self.user_cat_frames = []
 		
+		# Make sure we have a BooleanVar to keep track of all
+		# our categories.  The only time this should do anything
+		# is if there is a new category.  This new category
+		# should default to False.  We use a BooleanVar because
+		# those are easy to trace with the callback function
+		# trace_func.  This is called every time the variable
+		# changes (or is "w"ritten to), which happens every time
+		# the checkbox is clicked.  
 		for cat in self.questions:
 			if cat not in self.user_categories:
 				self.user_categories[cat] = BooleanVar(value=False)
 				self.user_categories[cat].trace(callback=self.trace_func, mode="w")
-				
-		i = 0
+		
+		# Experimentation showed that the best number of 
+		# categories to display per column is 25.  Theoretically,
+		# this should be more dynamic based on the size of the
+		# font, but for the current version 25 is nice.
 		CATEGORIES_PER_PAGE = 25
+		i = 0
 		f = None
 		mod = 1
+		
+		# Iterate through every category.  We want to keep them
+		# sorted so large lists of categories are much easier
+		# for the user to read.  Otherwise, due to the nature
+		# of dicts, the checkboxes would appear in a completely
+		# random order each time.
 		for cat in sorted(self.user_categories.keys()):
+			# The mod variable is used to alternate colors in
+			# the custom category display.  This line switches
+			# it from 1 to 0 or 0 to 1.
 			mod = (mod + 1) % 2
+			
+			# We already made a BooleanVar to keep track of all
+			# new categories.  Now get rid of all extraneous
+			# BooleanVars for categories that no longer exist.
 			if cat not in self.questions:
 				del self.user_categories[cat]
 				print("should be deleting %s from self.user_categories"%cat)
 				continue
 			
+			# i keeps track of the number of checkboxes we have
+			# put on one column.  If that matches 
+			# CATEGORIES_PER_PAGE, reset it to 0 and make a new
+			# Frame to put checkboxes on.  Pack the new Frame
+			# and append it to self.user_cat_frames.  Also,
+			# create and pack a small Label to act as a border
+			# between two columns.
 			if i%CATEGORIES_PER_PAGE == 0:
 				i = 0
 				mod = 0
@@ -499,13 +582,17 @@ class glee_config(object):
 				tmp_lbl = Label(tmp_frm, text="      ")
 				tmp_lbl.pack()
 				
+			# Make a new small Frame to put our new Checkbutton
+			# into.  Create the new Checkbutton and give it the
+			# appropriate BooleanVar from self.user_categories.
 			tmp_frame = ttk.Frame(f)
 			tmp_frame.pack(side=TOP, fill=X)
 			#tmp_frame.config(relief=SUNKEN)
 			b = ttk.Checkbutton(tmp_frame, text=cat, var=self.user_categories[cat])
 			
+			# If mod is 0, we want to use one background for
+			# checkbuttons.  Otherwise, use the other background.
 			if (mod == 0):
-				
 				b.config(style="Emergency1.TCheckbutton")
 			else:
 				b.config(style="Emergency0.TCheckbutton")
@@ -514,6 +601,9 @@ class glee_config(object):
 				
 			i += 1 #
 			
+	# fill_defaults is a simple test function to fill a few examples
+	# in the category and question listboxes for display testing.
+	# It should never be used in production.
 	def fill_defaults(self):
 		print("filling defaults")
 		for word in sorted(["English", "Math", "History", "Geography"]):
@@ -522,6 +612,9 @@ class glee_config(object):
 			for word in ["1. 10x+3", "2. 52/3", "3. 5*5"]:
 				self.quest_box.insert(END, word)
 				
+	# This function clears and then re-fills the category Listbox
+	# in addition to clearing the question Listbox and all 
+	# text entry forms.
 	def init_categories(self):
 		print("init categories")
 		self.cat_box.delete(0, END)  # clear the category box
@@ -536,39 +629,78 @@ class glee_config(object):
 		
 		for key in sorted(self.questions.keys()):   # populate the category box with the categories
 			self.cat_box.insert(END, key)
-			
+	
+	# This function clears the question Listbox and sets the 
+	# currently selected question to an empty string.
 	def reset_questions(self):
 		print("reset questions")
 		self.quest_box.delete(0, END)
 		self.quest_selected = ""
 			
+	# cat_select is the callback function for the select category
+	# button.  
 	def cat_select(self):
 		print("cat select")
+		# Make sure the user has actually selected something
+		# in the Listbox.  If not, notify them.
+		if len(self.cat_box.curselection()) == 0:
+			if self.cat_selected == "":
+				self.alt_ans_warning_string.set("Please click on\na category and click\nSelect Category.")
+				self.alt_ans_warning_label.config(foreground="red")
+				return			
+		# Listboxes are a bit counter-intuitive.  Rather than
+		# giving us the string the user has selected, it gives
+		# us a tuple containing a string representing the index 
+		# (for example, "1") of the item they have selected.
+		# If multiple selections are enabled (in this case, they
+		# are not) the tuple contains the indices of each 
+		# selected item.  We can then use that index in the
+		# Listbox's get function to get the selected string.
 		select_index = self.cat_box.curselection()[0]
 		category = self.cat_box.get(select_index)
 		self.cat_selected = category
 		self.fill_quest_box(category)
 		self.reset_display()
+		# When the user selects a new category, reset the 
+		# selected question to a null string.
 		self.quest_selected = ""
 	
+	# cat_delete is the callback function for the delete 
+	# category button.  
 	def cat_delete(self):
 		print("cat delete")
-		prompt = messagebox.askyesno("Delete Category?", "Are you sure you want to delete this category?\nAll questions in this category will be deleted!")
+		# messagebox.askyesno is a nifty function that displays
+		# a dialog that prompts the user to click "yes" or "no". 
+		# It returns True if the user clicks yes and False 
+		# otherwise.  
+		prompt = messagebox.askyesno("Delete Category?", "Are you sure you want to delete this category?\nAll questions in this category will be deleted!\nCategory: " + self.cat_selected)
 		if prompt == True:
 			del self.questions[self.cat_selected]
+			# Display a message saying which category the
+			# user is deleting.  Only display the first 20
+			# characters of the category for space concerns.
 			self.alt_ans_warning_string.set("Deleted category\n%s"%(self.cat_selected[:20]))
 			self.alt_ans_warning_label.config(foreground="blue")
+			# If we delete the selected category, remove the 
+			# reference to its name here.  Set it to a null
+			# string.
 			self.cat_selected = ""
 			self.init_categories()
 			self.init_user_checkboxes()
 			self.save_all()
 	
+	# This function reads all questions in a specific category
+	# and inserts them into the question box.  
 	def fill_quest_box(self, category):
 		print("fill question box")
 		self.reset_questions()
-		for question in sorted(self.questions[category].keys()):
-			self.quest_box.insert(END, question)
+		# Make sure it is a valid category.  If for some reason
+		# the category is not valid, do nothing.
+		if category in self.questions:
+			for question in sorted(self.questions[category].keys()):
+				self.quest_box.insert(END, question)
 	
+	# reset_display removes all inputted text from the text boxes.
 	def reset_display(self):
 		print("reset display")
 		self.title_entry.delete(0.0, END)
@@ -578,11 +710,21 @@ class glee_config(object):
 		self.alt_ans_2_entry.delete(0,END)
 		self.alt_ans_3_entry.delete(0,END)
 	
+	# quest_select is the callback function for the Select
+	# Question button.  
 	def quest_select(self, q=None):
 		print("question select")
 		self.reset_display()
 		question = q
 		if q == None:
+			if self.cat_selected == "":
+				self.alt_ans_warning_string.set("Please click on\na category and click\nSelect Category.")
+				self.alt_ans_warning_label.config(foreground="red")
+				return
+			if len(self.quest_box.curselection()) == 0:
+				self.alt_ans_warning_string.set("Click on a question\nbelow and then click\nSelect Question.")
+				self.alt_ans_warning_label.config(foreground="red")
+				return
 			question = self.quest_box.get(self.quest_box.curselection()[0])
 			self.quest_selected = question
 		
@@ -614,7 +756,7 @@ class glee_config(object):
 		if question == "":
 			print("blank question.  Setting warning")
 			self.alt_ans_warning_string.set("Must enter a \nquestion \nto save.")
-			alt_ans_warning_label.config(foreground="red")
+			self.alt_ans_warning_label.config(foreground="red")
 			return
 		elif category == "":
 			print("blank category.  Setting warning")
@@ -688,7 +830,12 @@ class glee_config(object):
 		#print(self.questions)
 			
 	def delete_question_func(self):
-		prompt = messagebox.askyesno("Delete Question?", "Are you sure you want to delete this question?")
+		if self.cat_selected == "":
+			self.alt_ans_warning_string.set("Please click on\na question and click\nSelect Question.")
+			self.alt_ans_warning_label.config(foreground="red")
+			return			
+		prompt = messagebox.askyesno("Delete Question?", "Are you sure you want to delete this question?\nQuestion: " + self.quest_selected)
+		
 		if prompt == True:
 			self.delete_question(self.quest_selected, self.cat_selected)
 			category = self.cat_selected
