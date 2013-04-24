@@ -25,11 +25,12 @@ public class QuestionActivity extends FragmentActivity implements
 			ServerApplication.out.flush();
 			Log.d("epics","sent output"); 
 		}
-		if(isCorrect){
-			Toast.makeText(this, "You are right!", Toast.LENGTH_SHORT).show();
-		}else{
-			Toast.makeText(this, "You are wrong!", Toast.LENGTH_SHORT).show();
-		}
+		//This tells the users if the question answered is correct or not
+//		if(isCorrect){
+//			Toast.makeText(this, "You are right!", Toast.LENGTH_SHORT).show();
+//		}else{
+//			Toast.makeText(this, "You are wrong!", Toast.LENGTH_SHORT).show();
+//		}
 		nextQuestion();
 	}
 
