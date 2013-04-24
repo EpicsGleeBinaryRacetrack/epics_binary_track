@@ -32,21 +32,13 @@ public class ServerApplication extends Application {
 					while (true) {
 						clientSocket = serverSocket.accept();
 						Log.d("epics", "Waiting for connection.....");
-						new Thread(new Runnable() {
+						try {
+							out = new PrintWriter(
+									clientSocket.getOutputStream(), true);
+						} catch (IOException e) {
+							Log.d("Connecting", "client did not connect");
+						}
 
-							@Override
-							public void run() {
-								try {
-									out = new PrintWriter(
-											clientSocket.getOutputStream(),
-											true);
-								} catch (IOException e) {
-									Log.d("Connecting",
-											"client did not connect");
-								}
-							}
-
-						}).start();
 					}
 				} catch (IOException e) {
 					System.err.println("Could not listen on port: 10007.");

@@ -32,7 +32,7 @@ public class JsonParsing {
 		// file name!!!!
 		// String jsonTxt = IOUtils.toString( is );
 		File dir = Environment.getExternalStorageDirectory();
-		File yourFile = new File(dir, "sample.txt");
+		File yourFile = new File(dir, "questions.txt");
 		BufferedReader r = new BufferedReader(new InputStreamReader(
 				new FileInputStream(yourFile)));
 		StringBuilder total = new StringBuilder();
