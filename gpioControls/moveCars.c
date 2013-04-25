@@ -9,9 +9,9 @@
 
 int main (int argc, char ** argv)
 {
-    int player1 = 4;    // GPIO7 / header pin 7
-    int player2 = 5;    // GPIO7 / header pin 7
-    int del = 1500;
+    int player1 = 4;
+    int player2 = 5;
+    int del = 1000;
 
     FILE *logFile = fopen("log.txt", "w");
     fprintf(logFile, "Moving player %s\n", argv[1]);

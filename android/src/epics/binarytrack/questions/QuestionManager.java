@@ -19,19 +19,21 @@ public class QuestionManager {
 				if (JsonParsing.addition)
 					return new Addition();
 			case 3:
-				if(JsonParsing.multiplication)
+				if (JsonParsing.multiplication)
 					return new Multiplication();
 			case 4:
-				if(JsonParsing.dec_to_bin)
+				if (JsonParsing.dec_to_bin)
 					return new Decimal2Binary();
 			case 5:
-				if(JsonParsing.division)
+				if (JsonParsing.division)
 					return new Division();
 			case 6:
-				Question q = JsonParsing.getList().get(
-						r.nextInt(JsonParsing.getList().size()));// r.nextInt(JsonParsing.getList().size())
-				if(q!=null){
-					return q;
+				if (JsonParsing.getList().size()!=0) {
+					Question q = JsonParsing.getList().get(
+							r.nextInt(JsonParsing.getList().size()));// r.nextInt(JsonParsing.getList().size())
+					if (q != null) {
+						return q;
+					}
 				}
 			}
 		}
