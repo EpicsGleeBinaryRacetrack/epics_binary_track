@@ -716,6 +716,12 @@ class glee_config(object):
 		print("question select")
 		self.reset_display()
 		question = q
+		# If no question is specified, make sure there is a 
+		# selected category.  If not, display an informative
+		# message and return.  If there is a selected 
+		# category, check if there is a selected question.
+		# If so, get it and set the selected question to that.
+		# If not, display an informative message and return.
 		if q == None:
 			if self.cat_selected == "":
 				self.alt_ans_warning_string.set("Please click on\na category and click\nSelect Category.")
@@ -733,7 +739,10 @@ class glee_config(object):
 		print("Category: " + category + " Question: " + question)
 		answers = self.questions[category][question]
 		self.fill_answers(question, category, answers)
-		
+	
+	# fill_answers fills the text boxes with the information
+	# (answers, category, and question) of the specified
+	# category and question.
 	def fill_answers(self, question, category, answers):
 		print("fill answers")
 		self.title_entry.insert(END, question)
@@ -743,7 +752,9 @@ class glee_config(object):
 		if len(answers) > 2:
 			self.alt_ans_2_entry.insert(END, answers[2])
 			self.alt_ans_3_entry.insert(END, answers[3])
-		
+	
+	# save_question is the callback function for the save
+	# question button.  
 	def save_question(self):
 		print("save question")
 		question = self.title_entry.get(0.0, END).strip()
@@ -753,6 +764,9 @@ class glee_config(object):
 		           self.alt_ans_2_entry.get(), self.alt_ans_3_entry.get()]
 		answers = [i for i in answers if i != ''] # clear all blank answers
 		
+		# Check to make sure the user has inputted the
+		# necessary data.  Display appropriate messages
+		# otherwise.
 		if question == "":
 			print("blank question.  Setting warning")
 			self.alt_ans_warning_string.set("Must enter a \nquestion \nto save.")
@@ -768,6 +782,11 @@ class glee_config(object):
 			self.alt_ans_warning_string.set("Must enter 2 or 4\nanswers to save.")
 			self.alt_ans_warning_label.config(foreground="red")
 			return
+		# If the previous if statements were all false,
+		# continue to saving the question.  Update the
+		# question if it is editing an existing question,
+		# create a new one if it is new, or change the 
+		# category if that is necessary.
 		elif self.cat_selected == "" or self.quest_selected == "":
 			# check if the category or question name has not been selected.
 			# If it has not, that means the question is new.	
@@ -790,11 +809,15 @@ class glee_config(object):
 			self.insert_question(question, category, answers)
 			self.alt_ans_warning_string.set("Question updated!")
 			self.alt_ans_warning_label.config(foreground=self.font_color)
+		
 		self.cat_selected = ""
 		self.quest_selected = ""
 		self.init_categories()
 		self.save_all()
 			
+	# insert_question stores the question in the dict
+	# in the proper format, such that 
+	# self.questions[category][question] == answers.
 	def insert_question(self, question, category, answers):
 		print("insert question")
 		if category not in self.questions:
@@ -806,9 +829,17 @@ class glee_config(object):
 		self.quest_selected = question
 		self.cat_selected = category
 		
+	# undo_change is the callback function for the 
+	# undo change button.  However, it is deprecated,
+	# because questions save automatically.  It simply
+	# re-selects the selected question.
 	def undo_change(self):
 		self.quest_select(q=self.quest_selected)
 		
+	# undo_all_changes is the callback function for the
+	# undo all changes button.  However, it is deprecated,
+	# because questions save automatically.  It simply
+	# reloads the configuration file.
 	def undo_all_changes(self):
 		self.alt_ans_warning_string.set("Reloading\nQuestions!")
 		self.alt_ans_warning_label.config(foreground=self.font_color)
@@ -816,19 +847,23 @@ class glee_config(object):
 		self.init_categories()
 		self.quest_selected = ""
 		self.cat_selected = ""
-			
+	
+	# delete_question is a helper function to delete a 
+	# question.
 	def delete_question(self, question, category):
 		print("delete question")
+		# Remove the question from the category.
 		del self.questions[category][question]
-		#print("questions[category] is now ", self.questions[category])
+		# If the category is now empty, delete the 
+		# category as well.
 		if len(self.questions[category]) == 0:
 			print("deleting")
 			del self.questions[category]
 			self.init_categories()
 			self.init_user_checkboxes()
 		
-		#print(self.questions)
-			
+	# delete_question_func is the callback function for
+	# the delete question button.  
 	def delete_question_func(self):
 		if self.cat_selected == "":
 			self.alt_ans_warning_string.set("Please click on\na question and click\nSelect Question.")
@@ -843,7 +878,10 @@ class glee_config(object):
 			self.cat_selected = category
 			self.fill_quest_box(category)
 			self.save_all()
-		
+	
+	# new_question is the callback function for the
+	# new questino button.  It resets all displays 
+	# and 
 	def new_question(self):
 		self.reset_display()
 		self.quest_selected = ""
@@ -851,19 +889,27 @@ class glee_config(object):
 		self.alt_ans_warning_string.set("Starting\na New\nQuestion!")
 		self.alt_ans_warning_label.config(foreground=self.font_color)
 
+	# save_all is the callback function for the save
+	# all button.  However, that use is deprecated because 
+	# this function is now called whenever information 
+	# changes.  
 	def save_all(self, refresh=True):
 		fout = open(self.fname, "w")
 		self.print_questions(f=fout)
-		#self.alt_ans_warning_string.set("Saved All\nQuestions!")
-		#self.alt_ans_warning_label.config(foreground=self.font_color)
 		fout.close()
 		if refresh:
 			self.init_categories()
 			self.init_user_checkboxes()
-				
+	
+	# load_from_file is called automatically in the __init__
+	# function.  
 	def load_from_file(self, fname): # right now the filename is "sample.txt"
 		f = open(fname, "r")
+		# Read the dumped json dict.
 		ret = json.load(f)
+		# Split the dict into its various parts and
+		# assign them to the appropriate variables.  Also,
+		# initialize some variables.
 		self.questions = ret["questions"]
 		if "default categories" in ret:
 			self.builtin_categories = ret["default categories"]
@@ -873,7 +919,7 @@ class glee_config(object):
 		else:
 			self.builtin_categories = {}
 			for i in ["binary to decimal", "decimal to binary",
-			          "addition", "subtraction", "multiplication", "division"]: # algebra used to be a category as well
+			          "addition", "subtraction", "multiplication", "division"]: 
 				self.builtin_categories[i] = BooleanVar(value=False)
 				self.builtin_categories[i].trace(callback=self.trace_func, mode="w")
 		if "user categories" in ret:
@@ -884,12 +930,21 @@ class glee_config(object):
 			pass
 		for key in self.user_categories:
 			self.user_categories[key].trace("w", self.trace_func)
-		
+	
+	# trace_func is a callback function called whenever the
+	# BooleanVars (used to keep track of whether the user 
+	# wants specific categories to be displayed in the game)
+	# are changed.  
 	def trace_func(self, u, v, w):
+		# Save all information to the file every time a 
+		# BooleanVar changes.  Do not refresh.
 		self.save_all(refresh=False)
 		pass
-		
+	
+	# print_questions is used to print questions to a file,
+	# or, if a file is unspecified, to stdout.
 	def print_questions(self, f=stdout):
+		# Create an empty dict to store all data.
 		dic = {}
 		dic["questions"] = self.questions
 		dic["default categories"] = {}# = self.builtin_categories
@@ -899,7 +954,12 @@ class glee_config(object):
 		for key in self.user_categories:
 			dic["user categories"][key] = self.user_categories[key].get()
 			
+		# Dump that dict using json to the specified
+		# file.  If the file is stdout, this will print
+		# to stdout.  Set indent to 2 for easy parsing.
 		json.dump(dic, f, indent=2)
-		
+
+# Create the glee_config instance.  Since the mainloop is 
+# run from within the __init__ function, this both creates
+# and starts the app.
 x = glee_config()
-#x.print_questions()
